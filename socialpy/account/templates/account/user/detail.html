@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+
+{% block title %}{{ user.get_full_name }}{% endblock %}
+
+{% block content %}
+    <h1>{{ user.get_full_name }}</h1>
+    <div class="profile-info">
+        {% thumbnail user.profile.photo "180x180" crop="100%" as im %}
+            <img src="{{ im.url }}" class="user-detail">
+        {% endthumbnail %}
+    </div>
+    {% with total_followers=user.followers.count %}
+        <span class="count">
+            <span class="total">{{ total_followers }}</span>
+            follower{{ total_followers|pluralize }}
+        </span>
+    <a href="#" data-id="{{ user.id }}" data-action="{% if request.user in user.followers.all %}un{% endif %}follow" class="follow button">
+    {% if request.user not in user.followers.all %}
+        Friend
+    {% else %}
+        Unfriend
+    {% endif %}
+    </a>
+    {% endwith %}
+    <p>
+    {% for post in posts %}
+        <h2>
+            <a href="{{ post.get_absolute_url }}">
+                {{ post.title }}
+            </a>
+        </h2>
+        <p class="date">
+            Published {{ post.publish }} by {{ post.author }}
+        </p>
+        {{ post.body|truncatewords:30|linebreaks }}
+    {% endfor %}
+    {% with comments.count as total_comments %}
+        <h2>
+            {{ total_comments }} comment{{ total_comments|pluralize }}
+        </h2>
+    {% endwith %}
+    {% for comment in comments %}
+        <div class="comment">
+            <p class="info">
+                Comment {{ forloop.counter }} by {{ comment.name }}
+                {{ comment.created }}
+            </p>
+            {{ comment.body|linebreaks }}
+        </div>
+    {% empty %}
+            <p>There are no comments yet.</p>
+    {% endfor %}
+    {% if new_comment %}
+        <h2>Your comment has been added.</h2>
+    {% else %}
+        <h2>Add a new comment</h2>
+        <form action="." method="post">
+            {{ comment_form.as_p }}
+            {% csrf_token %}
+        <p><input type="submit" value="Add comment"></p>
+        </form>
+    {% endif %}
+{% endblock %}
+{% block domready %}
+    $('a.follow').click(function(e){
+        e.preventDefault();
+        $.post('{% url "user_follow" %}',
+        {
+            id: $(this).data('id'),
+            action: $(this).data('action')
+        },
+        function(data){
+            if (data['status'] == 'ok') {
+                var previous_action = $('a.follow').data('action');
+                // toggle data-action
+                $('a.follow').data('action', previous_action == 'follow' ? 'unfollow' : 'follow');
+                // toggle link text
+                $('a.follow').text(previous_action == 'follow' ? 'Unfriend' : 'Friend');
+
+                // update total followers
+                var previous_followers = parseInt(
+                    $('span.count .total').text());
+                $('span.count .total').text(previous_action == 'follow' ? previous_followers + 1 : previous_followers - 1);
+                }
+            }
+        );
+    });
+{% endblock %}

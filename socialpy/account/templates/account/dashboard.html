@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <h1>Dashboard</h1>
+    {% with total_images_created=request.user.images_created.count %}
+    <p>Welcome to your dashboard.</p>
+    {% endwith %}
+
+    <p><a href="{% url "edit" %}">Edit Profile</a> or
+    <a href="{% url "password_change" %}">Change Password</a>.<p>
+{% endblock %}
