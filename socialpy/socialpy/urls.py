@@ -28,5 +28,8 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 ]
 
+# Fixed debug_toolbar issue: "NoReverseMatch at / 'djdt' is not a registered namespace"
 if settings.DEBUG:
+    import debug_toolbar
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += [url(r'^__debug__/', include(debug_toolbar.urls)),]

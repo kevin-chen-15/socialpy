@@ -31,7 +31,7 @@ python packages in the requirements.txt.
 
 	pip install -r requirements.txt
 
-Setting up the Superuser
+Setting up the Superuser (see USERGUIDE)
 =================================
 
 To create a super user
@@ -44,10 +44,15 @@ Initiate the Project
 =======================
 
 After downloading the requirements, setting up the database, and creating the
-superuser, run the site using:
+superuser, first clean up the cache used by thumbnail:
+
+	python manage.py thumbnail cleanup
+
+then run the site using:
 
     python manage.py runserver
 
 Django default IP is 127.0.0.1 (localhost), and at port 8000. You can specify
 these options after runserver command.
+
 # socialpy

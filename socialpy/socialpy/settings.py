@@ -49,6 +49,7 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -140,4 +141,17 @@ AUTHENTICATION_BACKENDS = (
 
 ABSOLUTE_URL_OVERRIDES = {
     'auth.user': lambda u: reverse_lazy('user_detail', args=[u.username])
+}
+
+# For Docker container
+# If you don't do this you will have to add the host IP in INTERNAL_IPS = ('127.0.0.1',)
+# And it will change, then you will have to change INTERNAL_IPS again.
+
+def show_debugtoolbar(request):
+    if request.is_ajax():
+        return False
+    return True
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': show_debugtoolbar,
 }
